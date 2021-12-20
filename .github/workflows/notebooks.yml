@@ -7,11 +7,15 @@ on:
     branches: [main]
 
 jobs:
-  run:
+  notebook-1:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: "latest"
+          activate-environment: python3
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
@@ -22,8 +26,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Create kernelspec
         run: |
-          $CONDA/bin/conda install -n python3
-          $CONDA/bin/conda activate python3
+          conda install -n python3
+          conda activate python3
           jupyter kernelspec install --user --name python3
       - name: Run the notebook(s)
         run: |
