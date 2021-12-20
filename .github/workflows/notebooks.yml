@@ -27,6 +27,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate python3
+          conda install jupyter
           jupyter kernelspec install --user --name python3
 
       - name: Install dependencies
