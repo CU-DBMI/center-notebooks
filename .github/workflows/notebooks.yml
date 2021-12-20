@@ -25,10 +25,7 @@ jobs:
 
       - name: Create kernelspec
         shell: bash -l {0}
-        run: |
-          conda activate python3
-          conda install jupyter
-          jupyter kernelspec install --user --name python3
+        run: conda activate python3
 
       - name: Install dependencies
         run: |
@@ -37,5 +34,6 @@ jobs:
 
       - name: Run the notebook(s)
         run: |
+          jupyter kernelspec install --user --name python3
           cd src/Notebooks
           papermill -k python3 --log-output "Create Cites from PMC Lookups.ipynb" -
