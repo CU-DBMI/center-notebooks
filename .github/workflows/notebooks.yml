@@ -24,6 +24,7 @@ jobs:
           activate-environment: python3
 
       - name: Create kernelspec
+        shell: bash -l {0}
         run: |
           conda activate python3
           jupyter kernelspec install --user --name python3
