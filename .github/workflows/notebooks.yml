@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +22,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Create kernelspec
         run: |
-          conda install -n python3
-          conda activate python3
+          $CONDA/bin/conda install -n python3
+          $CONDA/bin/conda activate python3
           jupyter kernelspec install --user --name python3
       - name: Run the notebook(s)
         run: |
