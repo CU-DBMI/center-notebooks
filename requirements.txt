@@ -10,3 +10,4 @@ nb_black
 matplotlib
 papermill
 jupyter
+ratelimit=2.2.1
