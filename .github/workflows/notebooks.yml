@@ -22,6 +22,7 @@ jobs:
           conda list
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi          
           python -m ipykernel install --user --name python3
+      - name: run the notebook
+        run: |
           cd src/Notebooks
-          echo "Running the notebook..."
           papermill -k python3 --log-output "Create Cites from PMC Lookups.ipynb" -
