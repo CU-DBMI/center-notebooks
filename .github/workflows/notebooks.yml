@@ -11,25 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
           auto-update-conda: true
-          activate-environment: python3
           python-version: "3.8"
-          auto-activate-base: true
-          channels: conda-forge
-
-      - name: Install dependencies
+      - name: Running the notebook
+        shell: bash -l {0}
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Create kernelspec
-        run: python -m ipykernel install --user --name python3
-
-      - name: Run the notebook(s)
-        run: |
+          conda list
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi          
+          python -m ipykernel install --user --name python3
           cd src/Notebooks
+          echo "Running the notebook..."
           papermill -k python3 --log-output "Create Cites from PMC Lookups.ipynb" -
