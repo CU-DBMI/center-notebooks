@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="never" default-locale="en-US">
   <!-- This style was edited with the Visual CSL Editor (http://editor.citationstyles.org/visualEditor/) -->
   <info>
@@ -48,7 +48,7 @@
       <group>
         <text variable="title" font-weight="bold"/>
       </group>
-      <group display="block">
+      <group display="block" suffix=" ">
         <text macro="author"/>
       </group>
       <group delimiter=" ">
