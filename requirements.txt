@@ -12,3 +12,4 @@ jupyter
 ratelimit==2.2.1
 citeproc-py==0.6.0
 pandoc
+diskcache
