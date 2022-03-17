@@ -127,4 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# custom
 /src/Notebooks/_build
+/src/Notebooks/secrets-*.yaml
+.vscode
