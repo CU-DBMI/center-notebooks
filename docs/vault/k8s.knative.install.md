@@ -18,7 +18,7 @@ Requires `helm`.
 
 YAML files referenced in this doc are under \src\knative-install-resources.
 
-This doc is written against knative 1.2.0. Version 1.3.0 is out as of this writing. TODO update to new version.
+This doc is written against knative 1.3.1.
 
 ## Install Kubernetes Control Plane and Workers
 
@@ -52,7 +52,7 @@ gke-zonal-cluster-1-default-pool-1915e7e8-qcq1   Ready    <none>   6m43s   v1.21
 
 Install the knative operator:
 
-    kubectl apply -f https://github.com/knative/operator/releases/download/knative-v1.2.0/operator.yaml
+    kubectl apply -f https://github.com/knative/operator/releases/download/knative-v1.3.1/operator.yaml
 
 Verify the installation; the deployment should be available (example):
 
@@ -87,7 +87,7 @@ You should see READY = True.
 
 ```
 NAME              VERSION   READY   REASON
-knative-serving   1.2.0     True
+knative-serving   1.3.0     True
 ```
 
 Given the EXTERNAL-IP from a couple steps above, configure DNS `*.default` and `*.center` to a A records. `default` and `center` map here to k8s namespaces. For every new namespace used with knative, we need to add a separate wildcard A entry.
@@ -106,7 +106,7 @@ Following this guide, and assuming the use of the HTTP-01 challenge. https://kna
 
 Add the cert-manager controller.
 
-    kubectl apply --filename https://github.com/knative/net-certmanager/releases/download/knative-v1.2.0/release.yaml
+    kubectl apply --filename https://github.com/knative/net-certmanager/releases/download/knative-v1.3.0/release.yaml
 
 Install cert-manager.
 
