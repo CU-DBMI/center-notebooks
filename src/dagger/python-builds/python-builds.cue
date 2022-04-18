@@ -45,7 +45,8 @@ dagger.#Plan & {
     client: filesystem: "./src": read: contents: dagger.#FS
 
     // template to build multiple versions of python app
-    actions: build: {
+    actions:
+        versions: {
         // python versions to reference for builds
         "3.9": _
         "3.8": _

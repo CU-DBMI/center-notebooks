@@ -2,7 +2,7 @@
 id: mebo859qf267oa37xdjloom
 title: Dagger with Buildkit and Podman
 desc: ''
-updated: 1650311899754
+updated: 1650316491323
 created: 1650114759145
 ---
 
@@ -16,4 +16,4 @@ created: 1650114759145
 1. Run Buildkit using the following, modifying as appropriate for your system: `podman run -d --name buildkitd --privileged -p 1234:1234 moby/buildkit:latest --addr tcp://0.0.0.0:1234` ([reference](https://github.com/moby/buildkit#podman) and [issue for podman explicit ports](https://github.com/dagger/dagger/issues/1959#issuecomment-1101547522))
 1. [Install Dagger](https://docs.dagger.io/1200/local-dev)
 1. Set BUILDKIT_HOST environment variable to podman-container://buildkit , for ex: `export BUILDKIT_HOST=tcp://localhost:1234` ([reference](https://docs.dagger.io/1223/custom-buildkit/) and [issue for podman explicit ports](https://github.com/dagger/dagger/issues/1959#issuecomment-1101547522))
-5. Run Dagger commands as necessary.
+1. Run Dagger commands as necessary.
