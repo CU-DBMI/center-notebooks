@@ -46,7 +46,7 @@ dagger.#Plan & {
 
     // template to build multiple versions of python app
     actions:
-        versions: {
+        builds: {
         // python versions to reference for builds
         "3.9": _
         "3.8": _

@@ -1,0 +1,5 @@
+ipython
+ipykernel
+pandas
+papermill
+sklearn
