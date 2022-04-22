@@ -2,13 +2,13 @@
 id: a2269yazf508qo286jpiduz
 title: Dagger Project Init
 desc: ''
-updated: 1650657230041
+updated: 1650657393861
 created: 1650656893895
 ---
 
 ## Summary
 
-Projects which use [Dagger](https://docs.dagger.io/) must be initialized to include dependencies from the core library in order to run. While it's recommended to include these dependencies as part of the project ([reference](https://docs.dagger.io/1225/pushing-plan-dependencies/)), there are sometimes hundreds of additional files included as part of this (everything is included, intstead of references only). See the below for getting started with a dagger project.
+Projects which use [Dagger](https://docs.dagger.io/) must be initialized to include dependencies from the core library in order to run. While it's recommended to include these dependencies as part of the project ([reference](https://docs.dagger.io/1225/pushing-plan-dependencies/)), there are sometimes many additional files included as part of this (any possible dependency is included, instead of those referenced only). See the below for getting started with a dagger project.
 
 ## Steps
 
