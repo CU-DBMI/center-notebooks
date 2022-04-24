@@ -1,6 +1,6 @@
 black==21.12b0
 manubot==0.5.1
-prefect[all]>=1,<2
+prefect>=1,<2
 pandas
 python-docx==0.8.11
 myst-parser==0.16.1
@@ -18,3 +18,4 @@ pyarrow
 monday
 pytest>=7
 jsonpath-ng
+git+https://github.com/CUHealthAI/mondaydotcom-utils.git@main#egg=mondaydotcom-utils
