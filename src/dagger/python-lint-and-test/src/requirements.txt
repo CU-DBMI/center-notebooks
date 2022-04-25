@@ -1,0 +1,5 @@
+bandit
+black
+pandas
+pylint
+pytest
