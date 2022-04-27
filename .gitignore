@@ -132,3 +132,4 @@ dmypy.json
 /src/Notebooks/_build
 /src/Notebooks/secrets-*.yaml
 .vscode
+/src/Notebooks/_cache

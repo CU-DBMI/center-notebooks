@@ -18,4 +18,5 @@ pyarrow
 monday
 pytest>=7
 jsonpath-ng
+smartsheet-python-sdk
 git+https://github.com/CUHealthAI/mondaydotcom-utils.git@main#egg=mondaydotcom-utils
