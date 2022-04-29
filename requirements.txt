@@ -1,4 +1,5 @@
 black==21.12b0
+isort
 manubot==0.5.1
 prefect>=1,<2
 pandas
@@ -9,6 +10,8 @@ nb_black
 matplotlib
 papermill
 jupyter
+jupyterlab
+jupyterlab_code_formatter
 ratelimit>=2.2
 citeproc-py>=0.6
 pandoc
