@@ -133,3 +133,7 @@ dmypy.json
 /src/Notebooks/secrets-*.yaml
 .vscode
 /src/Notebooks/_cache
+
+# dagger ignores, as more than dependencies are included
+cue.mod/pkg
+cue.mod/usr
