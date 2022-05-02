@@ -27,16 +27,19 @@ RUN chgrp -R 0 $WORK_DIR \
     && chmod -R g=u $WORK_DIR
 
 # installs
-RUN apt update \
-    && apt install -y \
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
     nodejs \
-    npm
-RUN pip3 install --no-cache -r requirements.txt
+    npm \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Install and enable jupyter lab formatter extension for isort+black formatting within notebooks
-RUN jupyter labextension install @ryantam626/jupyterlab_code_formatter
-RUN jupyter serverextension enable --py jupyterlab_code_formatter
-RUN jupyter server extension enable jupyterlab_code_formatter
+RUN jupyter labextension install @ryantam626/jupyterlab_code_formatter \
+    && jupyter serverextension enable --py jupyterlab_code_formatter \
+    && jupyter server extension enable jupyterlab_code_formatter
 
 USER somebody
 
