@@ -30,6 +30,7 @@ dagger.#Plan & {
         }
         // lint
         lint: {
+            // lint dockerfile
             hadolint_lint: docker.#Run & {
                 input: hadolint_build.output
                 command: {
@@ -37,11 +38,20 @@ dagger.#Plan & {
                         args: ["/tmp/jupyter-dev.Dockerfile"]
                 }
             }
-            jupyter_lint: docker.#Run & {
+            // lint yaml files
+            yaml_lint: docker.#Run & {
                 input: jupyter_build.output
                 command: {
                     name: "python"
                     args: ["-m", "yamllint", "src/Notebooks"]
+                }
+            }
+            // lint python and notebook files
+            black_lint: docker.#Run & {
+                input: jupyter_build.output
+                command: {
+                    name: "python"
+                    args: ["-m", "black", "src/Notebooks", "--check"]
                 }
             }
         }

@@ -1,4 +1,4 @@
-black==21.12b0
+black[jupyter]==22.3.0
 isort
 manubot==0.5.1
 prefect>=1,<2
