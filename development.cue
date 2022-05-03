@@ -8,6 +8,7 @@ import (
 
 dagger.#Plan & {
     client: filesystem: "./": read: contents: dagger.#FS
+    python_version: string | *"3.9.12"
 
     actions: {
         // build hadolint image
@@ -18,8 +19,32 @@ dagger.#Plan & {
                 },
                 docker.#Copy & {
                     contents: client.filesystem."./".read.contents
-                    source:"./jupyter-dev.Dockerfile"
-                    dest: "/tmp/jupyter-dev.Dockerfile"
+                    source:"./*.Dockerfile"
+                    dest: "/tmp/"
+                },
+            ]
+        }
+        // build base python image for linting and testing
+        python_build: docker.#Build & {
+            steps: [
+                docker.#Pull & {
+                    source: "python:" + python_version
+                },
+                docker.#Copy & {
+                    contents: client.filesystem."./".read.contents
+                    source:"./requirements.txt"
+                    dest: "./"
+                },
+                docker.#Copy & {
+                    contents: client.filesystem."./".read.contents
+                    source:"./src/Notebooks/"
+                    dest: "./src/Notebooks/"
+                },
+                docker.#Run & {
+                    command: {
+                        name: "pip" 
+                        args: ["install","--no-cache-dir","-r","requirements.txt"]
+                    }
                 },
             ]
         }
@@ -40,7 +65,7 @@ dagger.#Plan & {
             }
             // lint yaml files
             yaml_lint: docker.#Run & {
-                input: jupyter_build.output
+                input: python_build.output
                 command: {
                     name: "python"
                     args: ["-m", "yamllint", "src/Notebooks"]
@@ -48,7 +73,7 @@ dagger.#Plan & {
             }
             // lint python and notebook files
             black_lint: docker.#Run & {
-                input: jupyter_build.output
+                input: python_build.output
                 command: {
                     name: "python"
                     args: ["-m", "black", "src/Notebooks", "--check"]
