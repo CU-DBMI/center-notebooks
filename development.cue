@@ -4,10 +4,15 @@ package main
 import (
     "dagger.io/dagger"
     "universe.dagger.io/docker"
+    "universe.dagger.io/docker/cli"
 )
 
 dagger.#Plan & {
-    client: filesystem: "./": read: contents: dagger.#FS
+    client: {
+        filesystem: "./": read: contents: dagger.#FS
+        network: "unix:///var/run/docker.sock": connect: dagger.#Socket
+        env: PWD: string
+    }
     python_version: string | *"3.9.12"
 
     actions: {
@@ -53,10 +58,30 @@ dagger.#Plan & {
                 source: client.filesystem."./".read.contents
                 dockerfile: path: "./jupyter-dev.Dockerfile"
         }
+        // load the jupyter dev image to local docker instance
+        jupyter_local_load: cli.#Load & {
+            image: jupyter_build.output
+            host:  client.network."unix:///var/run/docker.sock".connect
+            tag:   "jupyter-dev"
+        }
+        // run jupyter development image in local docker cli
+        jupyter_local_run: {
+            cli.#Run & {
+                input: jupyter_local_load.output
+                host: client.network."unix:///var/run/docker.sock".connect
+                command: {
+                    name: "run"
+                    args: ["-d", "--name", "jupyter-dev", 
+                            "-p", "8888:8888",
+                            "-v", client.env.PWD + "/src:/workdir/src",
+                            "jupyter-dev"]
+                }
+            }
+        }
         // lint
         lint: {
             // lint dockerfile
-            hadolint_lint: docker.#Run & {
+            hadolint: docker.#Run & {
                 input: hadolint_build.output
                 command: {
                         name: "/bin/hadolint"
@@ -64,7 +89,7 @@ dagger.#Plan & {
                 }
             }
             // lint yaml files
-            yaml_lint: docker.#Run & {
+            yaml: docker.#Run & {
                 input: python_build.output
                 command: {
                     name: "python"
@@ -72,7 +97,7 @@ dagger.#Plan & {
                 }
             }
             // lint python and notebook files
-            black_lint: docker.#Run & {
+            black: docker.#Run & {
                 input: python_build.output
                 command: {
                     name: "python"
