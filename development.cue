@@ -53,6 +53,46 @@ dagger.#Plan & {
                 },
             ]
         }
+        // build docker-in-docker image for testing github actions with act
+        dind_build: docker.#Build & {
+            steps: [
+                docker.#Pull & {
+                    source: "docker:git"
+                },
+                docker.#Run & {
+                    command: {
+                        name: "mkdir"
+                        args: ["/home/work"]
+                    }
+                },
+                docker.#Copy & {
+                    contents: client.filesystem."./".read.contents
+                    source: "./"
+                    dest: "/home/work/"
+                },
+                docker.#Run & {
+                    workdir: "/home/work"
+                    command: {
+                        name: "wget"
+                        args: ["https://raw.githubusercontent.com/nektos/act/master/install.sh"]
+                    }
+                },
+                docker.#Run & {
+                    workdir: "/home/work"
+                    command: {
+                        name: "chmod"
+                        args: ["755", "install.sh"]
+                    }
+                },
+                docker.#Run & {
+                    workdir: "/home/work"
+                    command: {
+                        name: "./install.sh"
+                    }
+                },
+            ]
+        }
+
         // build jupyter development image
         jupyter_build: docker.#Dockerfile & {
                 source: client.filesystem."./".read.contents
@@ -102,6 +142,17 @@ dagger.#Plan & {
                 command: {
                     name: "python"
                     args: ["-m", "black", "src/Notebooks", "--check"]
+                }
+            }
+        }
+        test: {
+            // test github actions
+            github_actions: docker.#Run & {
+                input: dind_build.output
+                workdir: "/home/work"
+                command: {
+                    name: "/home/work/bin/act"
+                    args: ["-P", "node:16-buster-slim"]
                 }
             }
         }
