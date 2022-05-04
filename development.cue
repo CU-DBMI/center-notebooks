@@ -8,9 +8,16 @@ import (
 )
 
 dagger.#Plan & {
+    
     client: {
         filesystem: "./": read: contents: dagger.#FS
+        platform: {
+            os: string | *"linux"
+        }
         network: "unix:///var/run/docker.sock": connect: dagger.#Socket
+        if client.platform.os == "windows"{
+            network: "npipe:////./pipe/docker_engine": connect: dagger.#Socket
+        }
         env: PWD: string
     }
     python_version: string | *"3.9.12"
@@ -62,6 +69,9 @@ dagger.#Plan & {
         jupyter_local_load: cli.#Load & {
             image: jupyter_build.output
             host:  client.network."unix:///var/run/docker.sock".connect
+            if client.platform.os == "windows" {
+                host:  client.network."npipe:////./pipe/docker_engine".connect
+            }
             tag:   "jupyter-dev"
         }
         // run jupyter development image in local docker cli
@@ -69,6 +79,9 @@ dagger.#Plan & {
             cli.#Run & {
                 input: jupyter_local_load.output
                 host: client.network."unix:///var/run/docker.sock".connect
+                if client.platform.os == "windows" {
+                    host:  client.network."npipe:////./pipe/docker_engine".connect
+                }
                 command: {
                     name: "run"
                     args: ["-d", "--name", "jupyter-dev", 
