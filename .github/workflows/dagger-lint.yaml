@@ -18,4 +18,6 @@ jobs:
       - name: Dagger
         uses: dagger/dagger-for-github@v2
         with:
-          cmds: do lint
+          cmds: |
+            project update
+            do lint
