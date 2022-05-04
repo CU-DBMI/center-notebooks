@@ -92,7 +92,6 @@ dagger.#Plan & {
                 },
             ]
         }
-
         // build jupyter development image
         jupyter_build: docker.#Dockerfile & {
                 source: client.filesystem."./".read.contents
@@ -149,10 +148,14 @@ dagger.#Plan & {
             // test github actions
             github_actions: docker.#Run & {
                 input: dind_build.output
+                mounts: docker: {
+                    dest: "/var/run/docker.sock"
+                    contents: client.network."unix:///var/run/docker.sock".connect
+                }
                 workdir: "/home/work"
                 command: {
                     name: "/home/work/bin/act"
-                    args: ["-P", "node:16-buster-slim"]
+                    args: ["-P", "ubuntu-latest=node:16-buster-slim"]
                 }
             }
         }
