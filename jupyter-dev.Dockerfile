@@ -9,22 +9,23 @@ FROM python:$PYTHON_VERSION
 ENV LANG=en_US.UTF-8
 
 ENV PWD=$PWD
-ENV DATA_PWD=$PWD/src
+ENV DATA_PWD=$PWD
 ENV WORK_DIR=/workdir
-ENV DATA_DIR=$WORK_DIR/src
 
 WORKDIR $WORK_DIR
 
-COPY ./requirements.txt requirements.txt
-COPY $DATA_PWD $DATA_DIR
+COPY $DATA_PWD $WORK_DIR
 
 # add a nonroot user
 RUN groupadd --system somebody \
-    && useradd --base-dir $WORK_DIR --system --gid somebody -G root somebody
+    && useradd --system --gid somebody -G root somebody \
+    && mkdir /home/somebody
 
-# update to enable noroot access
-RUN chgrp -R 0 $WORK_DIR \ 
-    && chmod -R g=u $WORK_DIR
+# update to enable nonroot access
+RUN chgrp -R 0 $WORK_DIR \
+    && chgrp -R 0 /home/somebody \ 
+    && chmod -R g=u $WORK_DIR \
+    && chmod -R g=u /home/somebody
 
 # installs
 # hadolint ignore=DL3008

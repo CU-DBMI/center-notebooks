@@ -86,7 +86,7 @@ dagger.#Plan & {
                     name: "run"
                     args: ["-d", "--name", "jupyter-dev", 
                             "-p", "8888:8888",
-                            "-v", client.env.PWD + "/src:/workdir/src",
+                            "-v", client.env.PWD + ":/workdir",
                             "jupyter-dev"]
                 }
             }
