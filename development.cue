@@ -10,7 +10,10 @@ import (
 dagger.#Plan & {
     
     client: {
-        filesystem: "./": read: contents: dagger.#FS
+        filesystem: {
+            "./":  read: contents: dagger.#FS
+            "./src/Notebooks": write: contents: actions.format.remove_jupyter_output.export.directories."/workdir/src/Notebooks"
+        }
         platform: {
             os: string | *"linux"
         }
@@ -37,27 +40,39 @@ dagger.#Plan & {
             ]
         }
         // build base python image for linting and testing
-        python_build: docker.#Build & {
+        python_pre_build: docker.#Build & {
             steps: [
                 docker.#Pull & {
                     source: "python:" + python_version
                 },
+                docker.#Run & {
+                    command: {
+                        name: "mkdir"
+                        args: ["/workdir"]
+                    }
+                },
                 docker.#Copy & {
                     contents: client.filesystem."./".read.contents
                     source:"./requirements.txt"
-                    dest: "./"
-                },
-                docker.#Copy & {
-                    contents: client.filesystem."./".read.contents
-                    source:"./src/Notebooks/"
-                    dest: "./src/Notebooks/"
+                    dest: "/workdir/requirements.txt"
                 },
                 docker.#Run & {
+                    workdir: "/workdir"
                     command: {
                         name: "pip" 
                         args: ["install","--no-cache-dir","-r","requirements.txt"]
                     }
                 },
+            ]
+        }
+        python_build: docker.#Build & {
+            steps:[
+                docker.#Copy & {
+                    input: python_pre_build.output
+                    contents: client.filesystem."./".read.contents
+                    source:"./"
+                    dest: "/workdir"
+                }
             ]
         }
         // build jupyter development image
@@ -91,11 +106,29 @@ dagger.#Plan & {
                 }
             }
         }
+        // format
+        format: { 
+            remove_jupyter_output: docker.#Run & {
+                input: python_build.output
+                workdir: "/workdir"
+                command: {
+                    name: "find"
+                    args: ["/workdir/src/Notebooks", "-name", "*.ipynb",
+                            "-exec", "python", "-m", "jupyter", "nbconvert",
+                            "--clear-output", "--inplace",
+                            "{}", "\\;"]
+                }
+                export: {
+                    directories: "/workdir/src/Notebooks": _
+                }
+            }
+        }
         // lint
         lint: {
             // lint dockerfile
             hadolint: docker.#Run & {
                 input: hadolint_build.output
+                workdir: "/workdir"
                 command: {
                         name: "/bin/hadolint"
                         args: ["/tmp/jupyter-dev.Dockerfile"]
@@ -104,6 +137,7 @@ dagger.#Plan & {
             // lint yaml files
             yaml: docker.#Run & {
                 input: python_build.output
+                workdir: "/workdir"
                 command: {
                     name: "python"
                     args: ["-m", "yamllint", "src/Notebooks"]
@@ -112,6 +146,7 @@ dagger.#Plan & {
             // lint python and notebook files
             black: docker.#Run & {
                 input: python_build.output
+                workdir: "/workdir"
                 command: {
                     name: "python"
                     args: ["-m", "black", "src/Notebooks", "--check"]
