@@ -13,6 +13,7 @@ dagger.#Plan & {
         filesystem: {
             "./":  read: contents: dagger.#FS
             "./src/Notebooks": write: contents: actions.format.remove_jupyter_output.export.directories."/workdir/src/Notebooks"
+            "./src": write: contents: actions.format.black.export.directories."/workdir/src"
         }
         platform: {
             os: string | *"linux"
@@ -106,10 +107,35 @@ dagger.#Plan & {
                 }
             }
         }
-        // format
-        format: { 
-            remove_jupyter_output: docker.#Run & {
+        // applied code and/or file formatting
+        format: {
+            // sort python imports with isort
+            isort: docker.#Run & {
                 input: python_build.output
+                workdir: "/workdir"
+                command: {
+                    name: "python"
+                    args: ["-m", "isort", "/workdir/src/"]
+                }
+                export: {
+                    directories: "/workdir/src": _
+                }
+            },
+            // code style formatting with black
+            black: docker.#Run & {
+                input: isort.output
+                workdir: "/workdir"
+                command: {
+                    name: "python"
+                    args: ["-m", "black", "/workdir/src/"]
+                }
+                export: {
+                    directories: "/workdir/src": _
+                }
+            },
+            // remove jupyter notebook output data
+            remove_jupyter_output: docker.#Run & {
+                input: black.output
                 workdir: "/workdir"
                 command: {
                     name: "find"
