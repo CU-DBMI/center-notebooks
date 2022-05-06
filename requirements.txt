@@ -24,4 +24,3 @@ jsonpath-ng
 smartsheet-python-sdk
 yamllint
 git+https://github.com/CUHealthAI/mondaydotcom-utils.git@main#egg=mondaydotcom-utils
-
