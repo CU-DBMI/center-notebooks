@@ -116,7 +116,7 @@ dagger.#Plan & {
                     args: ["/workdir/src/Notebooks", "-name", "*.ipynb",
                             "-exec", "python", "-m", "jupyter", "nbconvert",
                             "--clear-output", "--inplace",
-                            "{}", "\\;"]
+                            "{}", "+"]
                 }
                 export: {
                     directories: "/workdir/src/Notebooks": _
