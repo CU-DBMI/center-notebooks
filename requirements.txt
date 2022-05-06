@@ -23,4 +23,5 @@ pytest>=7
 jsonpath-ng
 smartsheet-python-sdk
 yamllint
-git+https://github.com/CUHealthAI/mondaydotcom-utils.git@v0.1#egg=mondaydotcom-utils
+git+https://github.com/CUHealthAI/mondaydotcom-utils.git@main#egg=mondaydotcom-utils
+
