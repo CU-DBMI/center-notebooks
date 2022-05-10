@@ -21,3 +21,5 @@ pyarrow
 pytest>=7
 jsonpath-ng
 yamllint
+sklearn
+dvc
