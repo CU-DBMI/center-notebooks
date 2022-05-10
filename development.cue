@@ -41,7 +41,7 @@ dagger.#Plan & {
             ]
         }
         // build base python image for linting and testing
-        python_pre_build: docker.#Build & {
+        _python_pre_build: docker.#Build & {
             steps: [
                 docker.#Pull & {
                     source: "python:" + python_version
@@ -66,10 +66,10 @@ dagger.#Plan & {
                 },
             ]
         }
-        python_build: docker.#Build & {
+        _python_build: docker.#Build & {
             steps:[
                 docker.#Copy & {
-                    input: python_pre_build.output
+                    input: _python_pre_build.output
                     contents: client.filesystem."./".read.contents
                     source:"./"
                     dest: "/workdir"
@@ -77,13 +77,13 @@ dagger.#Plan & {
             ]
         }
         // build jupyter development image
-        jupyter_build: docker.#Dockerfile & {
+        _jupyter_build: docker.#Dockerfile & {
                 source: client.filesystem."./".read.contents
                 dockerfile: path: "./jupyter-dev.Dockerfile"
         }
         // load the jupyter dev image to local docker instance
-        jupyter_local_load: cli.#Load & {
-            image: jupyter_build.output
+        _jupyter_local_load: cli.#Load & {
+            image: _jupyter_build.output
             host:  client.network."unix:///var/run/docker.sock".connect
             if client.platform.os == "windows" {
                 host:  client.network."npipe:////./pipe/docker_engine".connect
@@ -91,9 +91,9 @@ dagger.#Plan & {
             tag:   "jupyter-dev"
         }
         // run jupyter development image in local docker cli
-        jupyter_local_run: {
+        jupyter: {
             cli.#Run & {
-                input: jupyter_local_load.output
+                input: _jupyter_local_load.output
                 host: client.network."unix:///var/run/docker.sock".connect
                 if client.platform.os == "windows" {
                     host:  client.network."npipe:////./pipe/docker_engine".connect
@@ -111,7 +111,7 @@ dagger.#Plan & {
         clean: {
             // sort python imports with isort
             isort: docker.#Run & {
-                input: python_build.output
+                input: _python_build.output
                 workdir: "/workdir"
                 command: {
                     name: "python"
@@ -162,7 +162,7 @@ dagger.#Plan & {
             }
             // lint yaml files
             yaml: docker.#Run & {
-                input: python_build.output
+                input: _python_build.output
                 workdir: "/workdir"
                 command: {
                     name: "python"
@@ -171,7 +171,7 @@ dagger.#Plan & {
             }
             // lint python and notebook files
             black: docker.#Run & {
-                input: python_build.output
+                input: _python_build.output
                 workdir: "/workdir"
                 command: {
                     name: "python"
