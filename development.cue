@@ -12,8 +12,8 @@ dagger.#Plan & {
     client: {
         filesystem: {
             "./":  read: contents: dagger.#FS
-            "./src/Notebooks": write: contents: actions.format.remove_jupyter_output.export.directories."/workdir/src/Notebooks"
-            "./src": write: contents: actions.format.black.export.directories."/workdir/src"
+            "./src/Notebooks": write: contents: actions.clean.remove_jupyter_output.export.directories."/workdir/src/Notebooks"
+            "./src": write: contents: actions.clean.black.export.directories."/workdir/src"
         }
         platform: {
             os: string | *"linux"
@@ -108,7 +108,7 @@ dagger.#Plan & {
             }
         }
         // applied code and/or file formatting
-        format: {
+        clean: {
             // sort python imports with isort
             isort: docker.#Run & {
                 input: python_build.output
