@@ -1,0 +1,4 @@
+outs:
+- md5: b6e0b725d6e6836f0bd42b54c5417586
+  size: 9875
+  path: iris_knn_model.pkl

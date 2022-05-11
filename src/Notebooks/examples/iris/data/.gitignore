@@ -1,2 +1,3 @@
 /iris.parquet
 /iris_3d_scatter.html
+/iris_knn_model.pkl
