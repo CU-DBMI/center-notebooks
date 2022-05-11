@@ -1,0 +1,4 @@
+outs:
+- md5: f13cad0610af286d7edb8f3755435c44
+  size: 3694378
+  path: iris_3d_scatter.html

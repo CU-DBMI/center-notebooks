@@ -23,3 +23,5 @@ jsonpath-ng
 yamllint
 sklearn
 dvc
+plotly
+jupyter-dash
