@@ -25,3 +25,7 @@ sklearn
 dvc
 plotly
 jupyter-dash
+jupyterlab-git
+modin
+polars
+pymars
