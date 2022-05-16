@@ -1,0 +1,4 @@
+outs:
+- md5: fe9027244a659019f1ef7a48ab3902df
+  size: 7532
+  path: iris_train.parquet

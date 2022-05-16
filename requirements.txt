@@ -21,3 +21,11 @@ pyarrow
 pytest>=7
 jsonpath-ng
 yamllint
+sklearn
+dvc
+plotly
+jupyter-dash
+jupyterlab-git
+modin
+polars
+pymars

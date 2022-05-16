@@ -31,5 +31,5 @@ To lint using Dagger use the command `dagger do lint`. This will perform various
 
 A local containerized Jupyter development environment is available for convenience. This environment generally depends on Docker being installed on the local machine. Use the following steps to run this environment.
 
-1. Use `dagger do jupyter_local_run` to build and run a jupyter lab container
+1. Use `dagger do jupyter` to build and run a jupyter lab container
 1. After the Dagger action completes, Open a browser window to [http://localhost:8888/lab](http://localhost:8888/lab)

@@ -33,6 +33,7 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
     nodejs \
     npm \
+    openjdk-17-jdk \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,6 +44,10 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 RUN jupyter labextension install @ryantam626/jupyterlab_code_formatter \
     && jupyter serverextension enable --py jupyterlab_code_formatter \
     && jupyter server extension enable jupyterlab_code_formatter
+
+# nextflow install
+RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v22.04.0/nextflow-22.04.0-all | bash \
+    && mv ./nextflow /usr/local/bin
 
 USER somebody
 
