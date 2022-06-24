@@ -1,35 +1,37 @@
-# center-notebooks
+# Center Notebooks
 
 Python Jupyter notebooks for pre-production or one-off experiments.
 
-To install required Python packages:
+## Installation
 
-    pip install -r requirements.txt
+Use Python [poetry](https://python-poetry.org/) to run and install related packages.
 
-To run a notebook using Papermill,
+```shell
+# installation
+poetry install
+```
 
-    cd src/Notebooks
-    papermill --log-output "Create Cites from PMC Lookups.ipynb" -
+## Running Notebooks
 
-## Dagger Tooling
+To run a notebook using [Papermill](https://papermill.readthedocs.io/en/latest/index.html):
 
-Development and integration may be assisted using [Dagger](https://docs.dagger.io/) and related files within this repo. Use the following steps to get started:
+```shell
+# navigate to Notebooks dir
+cd center-notebooks/Notebooks
+# run a notebook using papermill cmd
+papermill --log-output "Create Cites from PMC Lookups.ipynb" -
+```
 
-1. [Install Dagger](https://docs.dagger.io/1200/local-dev)
-1. Open a terminal and navigate to the directory of this source.
-1. Use `dagger project update` to populate dependencies.
+## Development
 
-### Formatting
+Development is assisted by procedures using [Dagger](https://dagger.io) via the `development.cue` file within this repo. These are also related to checks which are performed related to CI/CD. See the following page for more information on installing Dagger: <https://docs.dagger.io/install>
 
-To lint using Dagger use the command `dagger do format`. This applies isort and black formatting, in addition to clearing any notebook output.
+Afterwards, use the following commands within the project directory to perform various checks. Warnings or errors should show the related file and relevant text from the related tool which may need to be addressed.
 
-### Linting
-
-To lint using Dagger use the command `dagger do lint`. This will perform various linting steps intended to assist with code quality, formatting, etc.
-
-### Local Containerized Jupyter Environment
-
-A local containerized Jupyter development environment is available for convenience. This environment generally depends on Docker being installed on the local machine. Use the following steps to run this environment.
-
-1. Use `dagger do jupyter` to build and run a jupyter lab container
-1. After the Dagger action completes, Open a browser window to [http://localhost:8888/lab](http://localhost:8888/lab)
+```shell
+# clean various files using formatting standards
+dagger do clean
+# lint the files for formatting or other issues
+dagger do lint
+...
+```

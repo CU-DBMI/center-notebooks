@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "center-notebooks"
+version = "0.0.1"
+description = "Python Jupyter notebooks for pre-production or one-off experiments."
+authors = ["Your Name <you@example.com>"]
+license = "Apache-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+manubot = "0.5.1"
+prefect = ">=1,<2"
+pandas = "^1.4.2"
+python-docx = "0.8.11"
+myst-parser = "0.16.1"
+Sphinx = "4.3.1"
+matplotlib = "^3.5.2"
+papermill = "^2.3.4"
+jupyter = "jupyterlab"
+jupyterlab = "^3.4.3"
+jupyterlab-code-formatter = "^1.4.11"
+ratelimit = ">=2.2"
+citeproc-py = "^0.6.0"
+pandoc = "^2.2"
+diskcache = "^5.4.0"
+python-box = {extras = ["all"], version = "^6.0.2"}
+pyarrow = "^8.0.0"
+jsonpath-ng = "^1.5.3"
+sklearn = "^0.0"
+dvc = "^2.11.0"
+plotly = "^5.9.0"
+jupyter-dash = "^0.4.2"
+jupyterlab-git = "^0.37.1"
+modin = "^0.15.1"
+polars = "^0.13.49"
+pymars = "^0.9.0"
+
+[tool.poetry.dev-dependencies]
+black = {extras = ["jupyter"], version = "^22.3.0"}
+isort = "^5.10.1"
+nb-black = "^1.0.7"
+pytest = ">=7"
+yamllint = "^1.26.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

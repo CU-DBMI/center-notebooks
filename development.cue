@@ -3,184 +3,158 @@ package main
 import (
 	"dagger.io/dagger"
 	"universe.dagger.io/docker"
-	"universe.dagger.io/docker/cli"
 )
+
+// python build for linting, testing, building, etc.
+#PythonBuild: {
+	// client filesystem
+	filesystem: dagger.#FS
+
+	// python version to use for build
+	python_ver: string | *"3.9"
+
+	// poetry version to use for build
+	poetry_ver: string | *"1.1.13"
+
+	// container image
+	output: python_build.output
+
+	// referential build for base python image
+	_python_pre_build: docker.#Build & {
+		steps: [
+			docker.#Pull & {
+				source: "python:" + python_ver
+			},
+			docker.#Run & {
+				command: {
+					name: "mkdir"
+					args: ["/workdir"]
+				}
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./pyproject.toml"
+				dest:     "/workdir/pyproject.toml"
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./poetry.lock"
+				dest:     "/workdir/poetry.lock"
+			},
+			docker.#Run & {
+				workdir: "/workdir"
+				command: {
+					name: "pip"
+					args: ["install", "--no-cache-dir", "poetry==" + poetry_ver]
+				}
+			},
+			docker.#Set & {
+				config: {
+					env: ["POETRY_VIRTUALENVS_CREATE"]: "false"
+				}
+			},
+			docker.#Run & {
+				workdir: "/workdir"
+				command: {
+					name: "poetry"
+					args: ["install", "--no-interaction", "--no-ansi"]
+				}
+			},
+		]
+	}
+	// python build with likely changes
+	python_build: docker.#Build & {
+		steps: [
+			docker.#Copy & {
+				input:    _python_pre_build.output
+				contents: filesystem
+				source:   "./"
+				dest:     "/workdir"
+			},
+		]
+	}
+}
+
+// Convenience cuelang build for formatting, etc.
+#CueBuild: {
+	// client filesystem
+	filesystem: dagger.#FS
+
+	// output from the build
+	output: _cue_build.output
+
+	// cuelang pre-build
+	_cue_pre_build: docker.#Build & {
+		steps: [
+			docker.#Pull & {
+				source: "golang:latest"
+			},
+			docker.#Run & {
+				command: {
+					name: "mkdir"
+					args: ["/workdir"]
+				}
+			},
+			docker.#Run & {
+				command: {
+					name: "go"
+					args: ["install", "cuelang.org/go/cmd/cue@latest"]
+				}
+			},
+		]
+	}
+	// cue build for actions in this plan
+	_cue_build: docker.#Build & {
+		steps: [
+			docker.#Copy & {
+				input:    _cue_pre_build.output
+				contents: filesystem
+				source:   "./project.cue"
+				dest:     "/workdir/project.cue"
+			},
+		]
+	}
+
+}
+
 
 dagger.#Plan & {
 
 	client: {
 		filesystem: {
 			"./": read: contents:                 dagger.#FS
-			"./src/Notebooks": write: contents:   actions.clean.remove_jupyter_output.export.directories."/workdir/src/Notebooks"
-			"./src": write: contents:             actions.clean.black.export.directories."/workdir/src"
+			"./center-notebooks/Notebooks": write: contents:   actions.clean.remove_jupyter_output.export.directories."/workdir/center-notebooks/Notebooks"
+			"./center-notebooks": write: contents:             actions.clean.black.export.directories."/workdir/center-notebooks"
 			"./development.cue": write: contents: actions.clean.cue.export.files."/workdir/development.cue"
 		}
-		platform: {
-			os: string | *"linux"
-		}
-		network: "unix:///var/run/docker.sock": connect: dagger.#Socket
-		if client.platform.os == "windows" {
-			network: "npipe:////./pipe/docker_engine": connect: dagger.#Socket
-		}
-		env: PWD: string
 	}
-	python_version: string | *"3.9.12"
+	python_version: string | *"3.9"
+	poetry_version: string | *"1.1.13"
 
 	actions: {
-		// build hadolint image
-		_hadolint_build: docker.#Build & {
-			steps: [
-				docker.#Pull & {
-					source: "hadolint/hadolint:latest-debian"
-				},
-				docker.#Copy & {
-					contents: client.filesystem."./".read.contents
-					source:   "./*.Dockerfile"
-					dest:     "/tmp/"
-				},
-			]
+
+		python_build: #PythonBuild & {
+			filesystem: client.filesystem."./".read.contents
+			python_ver: python_version
+			poetry_ver: poetry_version
 		}
-		// build base python image for linting and testing
-		_python_pre_build: docker.#Build & {
-			steps: [
-				docker.#Pull & {
-					source: "python:" + python_version
-				},
-				docker.#Run & {
-					command: {
-						name: "mkdir"
-						args: ["/workdir"]
-					}
-				},
-				docker.#Copy & {
-					contents: client.filesystem."./".read.contents
-					source:   "./requirements.txt"
-					dest:     "/workdir/requirements.txt"
-				},
-				docker.#Run & {
-					workdir: "/workdir"
-					command: {
-						name: "pip"
-						args: ["install", "--no-cache-dir", "-r", "requirements.txt"]
-					}
-				},
-			]
+
+		cue_build: #CueBuild & {
+			filesystem: client.filesystem."./".read.contents
 		}
-		_python_build: docker.#Build & {
-			steps: [
-				docker.#Copy & {
-					input:    _python_pre_build.output
-					contents: client.filesystem."./".read.contents
-					source:   "./"
-					dest:     "/workdir"
-				},
-			]
-		}
-		// build jupyter development image
-		_jupyter_build: docker.#Dockerfile & {
-			source: client.filesystem."./".read.contents
-			dockerfile: path: "./jupyter-dev.Dockerfile"
-		}
-		// load the jupyter dev image to local docker instance
-		_jupyter_local_load: cli.#Load & {
-			image: _jupyter_build.output
-			host:  client.network."unix:///var/run/docker.sock".connect
-			if client.platform.os == "windows" {
-				host: client.network."npipe:////./pipe/docker_engine".connect
-			}
-			tag: "jupyter-dev"
-		}
-        // build jupyter development image
-		_jupyter_nextflow_build: docker.#Dockerfile & {
-			source: client.filesystem."./".read.contents
-			dockerfile: path: "./jupyter-nextflow-dev.Dockerfile"
-		}
-		// load the jupyter dev image to local docker instance
-		_jupyter_nextflow_local_load: cli.#Load & {
-			image: _jupyter_build.output
-			host:  client.network."unix:///var/run/docker.sock".connect
-			if client.platform.os == "windows" {
-				host: client.network."npipe:////./pipe/docker_engine".connect
-			}
-			tag: "jupyter-nextflow-dev"
-		}
-		// cuelang pre build
-		_cue_pre_build: docker.#Build & {
-			steps: [
-				docker.#Pull & {
-					source: "golang:latest"
-				},
-				docker.#Run & {
-					command: {
-						name: "mkdir"
-						args: ["/workdir"]
-					}
-				},
-				docker.#Run & {
-					command: {
-						name: "go"
-						args: ["install", "cuelang.org/go/cmd/cue@latest"]
-					}
-				},
-			]
-		}
-		// cuelang build for actions in this plan
-		_cue_build: docker.#Build & {
-			steps: [
-				docker.#Copy & {
-					input:    _cue_pre_build.output
-					contents: client.filesystem."./".read.contents
-					source:   "./development.cue"
-					dest:     "/workdir/development.cue"
-				},
-			]
-		}
-		// run jupyter development image in local docker cli
-		jupyter: {
-			cli.#Run & {
-				input: _jupyter_local_load.output
-				host:  client.network."unix:///var/run/docker.sock".connect
-				if client.platform.os == "windows" {
-					host: client.network."npipe:////./pipe/docker_engine".connect
-				}
-				command: {
-					name: "run"
-					args: ["-d", "--name", "jupyter-dev",
-						"-p", "8888:8888",
-						"-v", client.env.PWD + ":/workdir",
-						"jupyter-dev"]
-				}
-			}
-		}
-        // run jupyter development image in local docker cli
-		jupyter_nextflow: {
-			cli.#Run & {
-				input: _jupyter_nextflow_local_load.output
-				host:  client.network."unix:///var/run/docker.sock".connect
-				if client.platform.os == "windows" {
-					host: client.network."npipe:////./pipe/docker_engine".connect
-				}
-				command: {
-					name: "run"
-					args: ["-d", "--name", "jupyter-nextflow-dev",
-						"-p", "8899:8888",
-						"-v", client.env.PWD + ":/workdir",
-						"jupyter-nextflow-dev"]
-				}
-			}
-		}
+
 		// applied code and/or file formatting
 		clean: {
 			// sort python imports with isort
 			isort: docker.#Run & {
-				input:   _python_build.output
+				input:   python_build.output
 				workdir: "/workdir"
 				command: {
-					name: "python"
-					args: ["-m", "isort", "/workdir/src/"]
+					name: "poetry"
+					args: ["run", "isort", "/workdir/center-notebooks/"]
 				}
 				export: {
-					directories: "/workdir/src": _
+					directories: "/workdir/center-notebooks": _
 				}
 			}
 			// code style formatting with black
@@ -188,11 +162,11 @@ dagger.#Plan & {
 				input:   isort.output
 				workdir: "/workdir"
 				command: {
-					name: "python"
-					args: ["-m", "black", "/workdir/src/"]
+					name: "poetry"
+					args: ["run", "black", "/workdir/center-notebooks/"]
 				}
 				export: {
-					directories: "/workdir/src": _
+					directories: "/workdir/center-notebooks": _
 				}
 			}
 			// remove jupyter notebook output data
@@ -201,18 +175,18 @@ dagger.#Plan & {
 				workdir: "/workdir"
 				command: {
 					name: "find"
-					args: ["/workdir/src/Notebooks", "-name", "*.ipynb",
-						"-exec", "python", "-m", "jupyter", "nbconvert",
+					args: ["/workdir/center-notebooks/Notebooks", "-name", "*.ipynb",
+						"-exec", "poetry", "run", "jupyter", "nbconvert",
 						"--clear-output", "--inplace",
 						"{}", "+"]
 				}
 				export: {
-					directories: "/workdir/src/Notebooks": _
+					directories: "/workdir/center-notebooks/Notebooks": _
 				}
 			}
 			// code formatting for cuelang
 			cue: docker.#Run & {
-				input:   _cue_build.output
+				input:   cue_build.output
 				workdir: "/workdir"
 				command: {
 					name: "cue"
@@ -225,31 +199,22 @@ dagger.#Plan & {
 		}
 		// lint
 		lint: {
-			// lint dockerfile
-			hadolint: docker.#Run & {
-				input:   _hadolint_build.output
-				workdir: "/workdir"
-				command: {
-					name: "/bin/hadolint"
-					args: ["/tmp/*Dockerfile"]
-				}
-			}
 			// lint yaml files
 			yaml: docker.#Run & {
-				input:   _python_build.output
+				input:   python_build.output
 				workdir: "/workdir"
 				command: {
-					name: "python"
-					args: ["-m", "yamllint", "src/Notebooks"]
+					name: "poetry"
+					args: ["run", "yamllint", "center-notebooks/Notebooks"]
 				}
 			}
 			// lint python and notebook files
 			black: docker.#Run & {
-				input:   _python_build.output
+				input:   python_build.output
 				workdir: "/workdir"
 				command: {
-					name: "python"
-					args: ["-m", "black", "src/Notebooks", "--check"]
+					name: "poetry"
+					args: ["run", "black", "center-notebooks/Notebooks", "--check"]
 				}
 			}
 		}
