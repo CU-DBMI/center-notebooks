@@ -33,7 +33,5 @@ Afterwards, use the following commands within the project directory to perform v
 dagger do clean
 # lint the files for formatting or other issues
 dagger do lint
-# perform testing on the files
-dagger do test
 ...
 ```
