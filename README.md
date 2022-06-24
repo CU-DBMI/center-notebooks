@@ -1,4 +1,4 @@
-# center-notebooks
+# Center Notebooks
 
 Python Jupyter notebooks for pre-production or one-off experiments.
 
