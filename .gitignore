@@ -129,11 +129,11 @@ dmypy.json
 .pyre/
 
 # custom
-/src/Notebooks/_build
-/src/Notebooks/secrets-*.yaml
+/center-notebooks/Notebooks/_build
+/center-notebooks/Notebooks/secrets-*.yaml
 .vscode
-/src/Notebooks/_cache
-/src/Notebooks/data
+/center-notebooks/Notebooks/_cache
+/center-notebooks/Notebooks/data
 dask-worker-space
 
 # dagger ignores, as more than dependencies are included
