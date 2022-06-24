@@ -11,8 +11,8 @@ dagger.#Plan & {
 	client: {
 		filesystem: {
 			"./": read: contents:                 dagger.#FS
-			"./src/Notebooks": write: contents:   actions.clean.remove_jupyter_output.export.directories."/workdir/src/Notebooks"
-			"./src": write: contents:             actions.clean.black.export.directories."/workdir/src"
+			"./center-notebooks/Notebooks": write: contents:   actions.clean.remove_jupyter_output.export.directories."/workdir/center-notebooks/Notebooks"
+			"./center-notebooks": write: contents:             actions.clean.black.export.directories."/workdir/center-notebooks"
 			"./development.cue": write: contents: actions.clean.cue.export.files."/workdir/development.cue"
 		}
 		platform: {
@@ -177,10 +177,10 @@ dagger.#Plan & {
 				workdir: "/workdir"
 				command: {
 					name: "python"
-					args: ["-m", "isort", "/workdir/src/"]
+					args: ["-m", "isort", "/workdir/center-notebooks/"]
 				}
 				export: {
-					directories: "/workdir/src": _
+					directories: "/workdir/center-notebooks": _
 				}
 			}
 			// code style formatting with black
@@ -189,10 +189,10 @@ dagger.#Plan & {
 				workdir: "/workdir"
 				command: {
 					name: "python"
-					args: ["-m", "black", "/workdir/src/"]
+					args: ["-m", "black", "/workdir/center-notebooks/"]
 				}
 				export: {
-					directories: "/workdir/src": _
+					directories: "/workdir/center-notebooks": _
 				}
 			}
 			// remove jupyter notebook output data
@@ -201,13 +201,13 @@ dagger.#Plan & {
 				workdir: "/workdir"
 				command: {
 					name: "find"
-					args: ["/workdir/src/Notebooks", "-name", "*.ipynb",
+					args: ["/workdir/center-notebooks/Notebooks", "-name", "*.ipynb",
 						"-exec", "python", "-m", "jupyter", "nbconvert",
 						"--clear-output", "--inplace",
 						"{}", "+"]
 				}
 				export: {
-					directories: "/workdir/src/Notebooks": _
+					directories: "/workdir/center-notebooks/Notebooks": _
 				}
 			}
 			// code formatting for cuelang
