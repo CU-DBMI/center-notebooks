@@ -33,6 +33,7 @@ jupyterlab-git = "^0.37.1"
 modin = "^0.15.1"
 polars = "^0.13.49"
 pymars = "^0.9.0"
+jupytext = "^1.13.8"
 
 [tool.poetry.dev-dependencies]
 black = {extras = ["jupyter"], version = "^22.3.0"}
