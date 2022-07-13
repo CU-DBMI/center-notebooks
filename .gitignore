@@ -135,6 +135,7 @@ dmypy.json
 /center-notebooks/Notebooks/_cache
 /center-notebooks/Notebooks/data
 dask-worker-space
+.env*
 
 # dagger ignores, as more than dependencies are included
 cue.mod/pkg
